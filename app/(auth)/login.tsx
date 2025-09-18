@@ -28,7 +28,7 @@ export default function LoginScreen() {
           <Text style={styles.loginButtonText}>Login</Text>
         </TouchableOpacity>
 
-        <Link href="/(tabs)" asChild>
+        <Link href="/(app)" asChild>
             <TouchableOpacity>
                 <Text style={styles.skipText}>Skip for now</Text>
             </TouchableOpacity>

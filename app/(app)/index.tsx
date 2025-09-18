@@ -5,8 +5,6 @@ import SummaryCard from '../../components/SummaryCard';
 import MaintenanceItem from '../../components/MaintenanceItem';
 
 // We will create these components in the next steps
-// import SummaryCard from '../../components/SummaryCard';
-// import MaintenanceItem from '../../components/MaintenanceItem';
 
 export default function DashboardScreen() {
   return (
