@@ -1,98 +1,110 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { FontAwesome } from '@expo/vector-icons';
+import SummaryCard from '../../components/SummaryCard';
+import MaintenanceItem from '../../components/MaintenanceItem';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+// We will create these components in the next steps
+// import SummaryCard from '../../components/SummaryCard';
+// import MaintenanceItem from '../../components/MaintenanceItem';
 
-export default function HomeScreen() {
+export default function DashboardScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView style={styles.container}>
+        {/* STEP 3: HEADER */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Dashboard</Text>
+          <TouchableOpacity>
+            <FontAwesome name="cog" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        {/* STEP 4: SUMMARY CARDS */}
+        <Text style={styles.sectionTitle}>Overview</Text>
+        <View style={styles.summaryGrid}>
+    <SummaryCard title="Total Equipment" value="150" />
+    <SummaryCard title="Operational" value="120" />
+    <SummaryCard title="Under Maintenance" value="20" />
+    <SummaryCard title="Broken" value="10" />
+</View>
+
+        {/* We'll skip the chart for now to keep it simple */}
+
+        {/* STEP 5: UPCOMING MAINTENANCE */}
+        <View style={styles.maintenanceList}>
+    <MaintenanceItem
+        title="HVAC System Check"
+        dueDate="Due in 7 days"
+        status="Upcoming"
+    />
+    <MaintenanceItem
+        title="Electrical Panel Inspection"
+        dueDate="Due in 14 days"
+        status="Scheduled"
+    />
+    <MaintenanceItem
+        title="Generator Maintenance"
+        dueDate="Overdue by 3 days"
+        status="Overdue"
+    />
+</View>
+
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#0F172A', // Dark blue-black background
+  },
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 8,
+    marginBottom: 24,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: 'white',
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 16,
+    marginTop: 16,
   },
+  summaryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  // TEMPORARY STYLES for the cards - we will move this to a component
+  card: {
+    backgroundColor: '#007AFF',
+    width: '48%', // Two cards per row
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 16,
+  },
+  cardTitle: {
+    color: '#E0E0E0',
+    fontSize: 16,
+  },
+  cardValue: {
+    color: 'white',
+    fontSize: 36,
+    fontWeight: 'bold',
+  },
+  maintenanceList: {
+    // This will hold our list items
+  }
 });

@@ -1,33 +1,46 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { FontAwesome, MaterialIcons } from '@expo/vector-icons'; // Import icon sets
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
+        tabBarActiveTintColor: '#007AFF', // Blue color for the active tab
+        tabBarStyle: {
+          backgroundColor: '#0F172A', // Dark blue for the tab bar
+          borderTopColor: '#0F172A',
+        },
       }}>
       <Tabs.Screen
-        name="index"
+        name="scan"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Scan',
+          headerShown: false, // We will create our own header
+          tabBarIcon: ({ color }) => <MaterialIcons name="qr-code-scanner" size={28} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="index" // This links to index.tsx
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Dashboard',
+          headerShown: false, // We will create our own header
+          tabBarIcon: ({ color }) => <FontAwesome name="home" size={28} color={color} />,
+        }}
+      />
+       <Tabs.Screen
+        name="tasks"
+        options={{
+          title: 'Tasks',
+          headerShown: false, // We will create our own header
+          tabBarIcon: ({ color }) => <FontAwesome name="check-square-o" size={24} color={color} />,
+        }}
+      />
+       <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          headerShown: false, // We will create our own header
+          tabBarIcon: ({ color }) => <FontAwesome name="user" size={24} color={color} />,
         }}
       />
     </Tabs>
