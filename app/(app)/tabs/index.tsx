@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome } from '@expo/vector-icons';
-import SummaryCard from '../../components/SummaryCard';
-import MaintenanceItem from '../../components/MaintenanceItem';
+import SummaryCard from '../../../components/SummaryCard';
+import MaintenanceItem from '../../../components/MaintenanceItem';
 
 // We will create these components in the next steps
 

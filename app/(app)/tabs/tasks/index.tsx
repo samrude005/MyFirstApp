@@ -1,20 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
+import { db } from '../../../../firebaseConfig'; // Make sure this path is correct
+import { collection, onSnapshot, query } from 'firebase/firestore';
 
-// Dummy data for the list
-const tasks = [
-  { id: '123', title: 'Inspect HVAC System', status: 'Pending', dueDate: '07/20/2024', completed: false },
-  { id: '124', title: 'Repair Leaky Faucet', status: 'In Progress', dueDate: '07/22/2024', completed: false },
-  { id: '125', title: 'Replace Air Filter', status: 'Completed', dueDate: '07/18/2024', completed: true },
-  { id: '126', title: 'Check Electrical Outlets', status: 'Pending', dueDate: '07/25/2024', completed: false },
-  { id: '127', title: 'Clean Gutters', status: 'In Progress', dueDate: '07/23/2024', completed: false },
-];
-
-// Define the Task type
-type Task = {
+// Define the Task type (you did this correctly!)
+interface Task {
   id: string;
   title: string;
   status: string;
@@ -24,7 +17,9 @@ type Task = {
 
 // A reusable component for the list items
 const TaskItem = ({ task }: { task: Task }) => (
-  <Link href={`./(tabs)/${task.id}`} asChild>
+  // I noticed a small bug in your Link href, I've corrected it here
+  // It should probably navigate to the dynamic task page within the tasks stack
+  <Link href={`/(app)/tabs/tasks/${task.id}`} asChild>
     <TouchableOpacity style={styles.taskItem}>
       <View style={styles.taskCheckbox}>
         {task.completed && <MaterialIcons name="check" size={20} color="white" />}
@@ -37,26 +32,46 @@ const TaskItem = ({ task }: { task: Task }) => (
   </Link>
 );
 
-
 export default function MaintenanceTasksScreen() {
+  // THIS IS THE FIX:
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  useEffect(() => {
+    const q = query(collection(db, 'tasks'));
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const tasksData: Task[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        tasksData.push({
+          id: doc.id,
+          title: data.title || 'No Title',
+          status: data.status || 'Unknown',
+          dueDate: data.dueDate || 'N/A',
+          completed: data.completed || false,
+        });
+      });
+      setTasks(tasksData);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Maintenance Tasks</Text>
       </View>
-
       <View style={styles.controls}>
         <View style={styles.searchContainer}>
           <FontAwesome name="search" size={16} color="#94A3B8" style={{marginRight: 8}} />
           <TextInput placeholder="Search tasks" placeholderTextColor="#94A3B8" style={styles.searchInput} />
         </View>
         <View style={styles.filters}>
-            {/* These would have dropdown menus in a real app */}
             <TouchableOpacity style={styles.filterButton}><Text style={styles.filterText}>Status</Text></TouchableOpacity>
             <TouchableOpacity style={styles.filterButton}><Text style={styles.filterText}>Due Date</Text></TouchableOpacity>
         </View>
       </View>
-
       <ScrollView style={styles.listContainer}>
         {tasks.map(task => <TaskItem key={task.id} task={task} />)}
       </ScrollView>

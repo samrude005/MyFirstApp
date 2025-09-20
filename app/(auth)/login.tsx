@@ -1,42 +1,51 @@
-import React from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome } from '@expo/vector-icons';
 import { Link } from 'expo-router';
+import React, { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+
 
 export default function LoginScreen() {
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <FontAwesome name="key" size={40} color="#007AFF" style={{ marginBottom: 24 }} />
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to manage your maintenance tasks.</Text>
+      const { login } = useAuth();
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
 
-        <TextInput
-          placeholder="Username/Email"
-          placeholderTextColor="#94A3B8"
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="Password"
-          placeholderTextColor="#94A3B8"
-          style={styles.input}
-          secureTextEntry
-        />
+      const handleLogin = () => {
+        login(email, password);
+      };
 
-        <TouchableOpacity style={styles.loginButton}>
-          <Text style={styles.loginButtonText}>Login</Text>
-        </TouchableOpacity>
+      return (
+          
+          <SafeAreaView style={styles.safeArea}>
+            <View style={styles.container}>
+              <FontAwesome name="key" size={40} color="#007AFF" style={{ marginBottom: 24 }} />
+              <Text style={styles.title}>Welcome Back</Text>
+              <Text style={styles.subtitle}>Sign in to manage your maintenance tasks.</Text>
+            </View>
+            <TextInput
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            style={styles.input}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TextInput
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            style={styles.input}
+            secureTextEntry
+          />
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <Text style={styles.loginButtonText}>Login</Text>
+          </TouchableOpacity>
+          </SafeAreaView>
+        
+      );
+    }
 
-        <Link href="/(app)" asChild>
-            <TouchableOpacity>
-                <Text style={styles.skipText}>Skip for now</Text>
-            </TouchableOpacity>
-        </Link>
-      </View>
-    </SafeAreaView>
-  );
-}
 
 const styles = StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: '#0F172A' },
