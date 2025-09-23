@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth, db } from '../firebaseConfig'; // Import our initialized services
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 // FIX #1: Add explicit types for email and password here
 interface AuthContextType {
   user: User | null; // Use the real Firebase User type
@@ -64,3 +63,45 @@ export function useAuth() {
 // 1.  **In `AuthContextType`:** The `login` function signature was changed from `(email, password)` to `(email: string, password: string)`.
 // 2.  **In the `login` function implementation:** The parameters were also changed from `async (email, password)` to `async (email: string, password: string)`.
 // 3.  **In the `catch` block of the `login` function:** The simple `alert(error.message)` was wrapped in an `if (error instanceof Error)` block to satisfy TypeScript's type safety for the `unknown` error type.
+
+
+// utils/userProfile.ts
+
+export const createUserProfile = async (
+  uid: string, 
+  email: string, 
+  displayName: string,
+  role: 'student' | 'technical' | 'admin' = 'student'
+) => {
+  try {
+    const userProfileRef = doc(db, 'userProfiles', uid);
+    
+    // Check if profile already exists
+    const existingProfile = await getDoc(userProfileRef);
+    if (!existingProfile.exists()) {
+      await setDoc(userProfileRef, {
+        uid,
+        email,
+        displayName,
+        role,
+        createdAt: new Date(),
+        isActive: true,
+      });
+    }
+  } catch (error) {
+    console.error('Error creating user profile:', error);
+  }
+};
+
+
+export interface UserProfile {
+  uid: string;
+  email: string;
+  displayName: string;
+  role: 'student' | 'technical' | 'admin';
+  department?: string;
+  location?: string;
+  phoneNumber?: string;
+  createdAt: any; // Firestore Timestamp type
+  isActive: boolean;
+}
