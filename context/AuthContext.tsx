@@ -1,124 +1,113 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth, db } from '../firebaseConfig'; // Your Firebase services
-import { 
-  onAuthStateChanged, 
-  signInWithEmailAndPassword, 
-  signOut, 
-  createUserWithEmailAndPassword, // Added for signup
-  User 
-} from 'firebase/auth';
-import { doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore'; // Added onSnapshot for real-time updates
+import { User } from 'firebase/auth';
 
-// 1. UserProfile INTERFACE IS NOW DEFINED HERE
+// The UserProfile interface we need
 export interface UserProfile {
   uid: string;
   email: string;
   displayName: string;
   role: 'student' | 'technical' | 'admin';
-  createdAt: any; // Firestore Timestamp
+  createdAt: any;
   isActive: boolean;
-  // Optional fields from your definition
-  department?: string;
-  location?: string;
-  phoneNumber?: string;
 }
 
-// 2. createUserProfile FUNCTION IS NOW DEFINED HERE
-export const createUserProfile = async (
-  uid: string, 
-  email: string, 
-  displayName: string,
-  role: 'student' | 'technical' | 'admin' = 'student' // Default role is 'student'
-) => {
-  try {
-    const userProfileRef = doc(db, 'Users', uid);
-    const existingProfile = await getDoc(userProfileRef);
-    if (!existingProfile.exists()) {
-      await setDoc(userProfileRef, {
-        uid,
-        email,
-        displayName,
-        role,
-        createdAt: new Date(), // Use JS Date, Firestore converts it
-        isActive: true,
-      });
-    }
-  } catch (error) {
-    console.error('Error creating user profile:', error);
-  }
-};
-
-// 3. AuthContextType IS EXPANDED
+// The shape of our context
 interface AuthContextType {
   user: User | null;
-  userProfile: UserProfile | null; // To hold Firestore profile data
-  loading: boolean; // To handle the initial loading state
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  signup: (email: string, password: string, displayName: string) => Promise<void>; // Signup function
+  userProfile: UserProfile | null;
+  loading: boolean;
+  // --- DEMO FUNCTIONS
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+// Mock user data for demo
+const MOCK_USER: Partial<User> = {
+  uid: 'demo-user-123',
+  email: 'demo@example.com',
+  displayName: 'Demo User',
+  emailVerified: true,
+} as User;
+
+const MOCK_PROFILE: UserProfile = {
+  uid: 'demo-user-123',
+  email: 'demo@example.com',
+  displayName: 'Demo User',
+  role: 'student',
+  createdAt: new Date().toISOString(),
+  isActive: true,
+};
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null); // New state for profile
-  const [loading, setLoading] = useState(true); // New state for loading
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // 4. useEffect IS ENHANCED TO FETCH THE PROFILE
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        // User is logged in, listen for profile changes
-        const userProfileRef = doc(db, 'Users', currentUser.uid);
-        const unsubscribeProfile = onSnapshot(userProfileRef, (docSnap) => {
-          if (docSnap.exists()) {
-            setUserProfile(docSnap.data() as UserProfile);
-          } else {
-            setUserProfile(null);
-          }
-          setLoading(false);
-        });
-        return () => unsubscribeProfile(); // Cleanup profile listener
-      } else {
-        // User is logged out
-        setUserProfile(null);
+    // Simulate initial auth check with delay
+    const checkAuth = async () => {
+      try {
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // For demo: automatically sign in after delay
+        // Remove these lines if you want users to start logged out
+        // setUser(MOCK_USER as User);
+        // setUserProfile(MOCK_PROFILE);
+      } catch (error) {
+        console.error('Demo auth check error:', error);
+      } finally {
         setLoading(false);
       }
-    });
-    return () => unsubscribeAuth(); // Cleanup auth listener
+    };
+
+    checkAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<void> => {
+    setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Mock authentication - accepts any credentials
+      const mockUser = {
+        ...MOCK_USER,
+        email: email,
+      } as User;
+      
+      const mockProfile = {
+        ...MOCK_PROFILE,
+        email: email,
+        displayName: email.split('@')[0],
+      };
+      
+      setUser(mockUser);
+      setUserProfile(mockProfile);
     } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message);
-      } else {
-        alert('An unexpected error occurred.');
-      }
-    }
-  };
-  
-  // 5. SIGNUP FUNCTION IS ADDED
-  const signup = async (email: string, password: string, displayName: string) => {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // After creating the auth user, create their profile document
-      await createUserProfile(userCredential.user.uid, userCredential.user.email!, displayName);
-    } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message);
-      } else {
-        alert('An unexpected error occurred during signup.');
-      }
+      console.error('Demo sign in error:', error);
+      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const logout = async () => {
-    await signOut(auth);
+  const signOut = async (): Promise<void> => {
+    setLoading(true);
+    try {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setUser(null);
+      setUserProfile(null);
+    } catch (error) {
+      console.error('Demo sign out error:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const value = {
@@ -126,22 +115,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     userProfile,
     loading,
     login,
-    logout,
-    signup
+    signOut,
   };
 
-  // Render children only after the initial loading is complete
-  return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
-}
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
 
-export function useAuth() {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
+};
